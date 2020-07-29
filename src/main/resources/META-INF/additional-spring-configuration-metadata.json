@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "productURL",
+    "type": "java.lang.String",
+    "description": "A description for 'productURL'"
+  },
+  {
+    "name": "cheesesURL",
+    "type": "java.lang.String",
+    "description": "A description for 'cheesesURL'"
+  }
+]}
