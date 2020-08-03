@@ -13,12 +13,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import com.epam.polandcheesesservice.DTOs.CheeseNutrimentsResponseDTO;
-import com.epam.polandcheesesservice.DTOs.PolandCheesesResponseDTO;
+import com.epam.polandcheesesservice.DTOs.CheeseApiResponseDTO;
+import com.epam.polandcheesesservice.DTOs.CheeseDTO;
+import com.epam.polandcheesesservice.DTOs.CheeseNutrientsDTO;
+import com.epam.polandcheesesservice.DTOs.PolandCheesesDTO;
 import com.epam.polandcheesesservice.controllers.PolandCheesesController;
-import com.epam.polandcheesesservice.model.Cheese;
-import com.epam.polandcheesesservice.model.CheeseNutrients;
 import com.epam.polandcheesesservice.services.CheeseNutrimentsService;
 import com.epam.polandcheesesservice.services.PolandCheesesService;
 
@@ -31,7 +33,7 @@ class PolandCheesesControllerTest {
 
 	@Mock
 	PolandCheesesService polandCheesesService;
-	
+
 	@Mock
 	CheeseNutrimentsService cheeseNutrimentsService;
 
@@ -39,112 +41,73 @@ class PolandCheesesControllerTest {
 	@DisplayName("Chesses Test with result")
 	void getPolandChessesCase() throws Exception {
 		// given
-		List<Cheese> products = new ArrayList<Cheese>();
-		products.add(new Cheese("5902476000391", "Twaróg chudy", 0));
-		products.add(new Cheese("8000430900231", "Mozzarella di latte di bufala", 0));
-		products.add(new Cheese("59031291", "Danio Truskawkowe", 3));
-		products.add(new Cheese("5902899137575", "Ser Kremowy Cheddar", 4));
-		PolandCheesesResponseDTO cheeses = new PolandCheesesResponseDTO(1, "product found", products);
+		List<CheeseDTO> products = new ArrayList<CheeseDTO>();
+		products.add(new CheeseDTO("5902476000391", "Twaróg chudy", 0));
+		products.add(new CheeseDTO("8000430900231", "Mozzarella di latte di bufala", 0));
+		products.add(new CheeseDTO("59031291", "Danio Truskawkowe", 3));
+		products.add(new CheeseDTO("5902899137575", "Ser Kremowy Cheddar", 4));
+		PolandCheesesDTO cheeses = new PolandCheesesDTO(products);
 
 		when(polandCheesesService.getPolandChesses()).thenReturn(cheeses);
 
 		// when
-		PolandCheesesResponseDTO response = polandCheesesController.getPolandChesses();
-
+		ResponseEntity<PolandCheesesDTO> response = polandCheesesController.getPolandChesses();
+		PolandCheesesDTO productsReturn = response.getBody();
 		// then
-		assertThat(response.getStatus()).isEqualTo(1);
-		assertThat(response.getProducts().size()).isEqualTo(4);
-		assertThat(response.getProducts().get(0).getProductName()).isEqualTo(products.get(0).getProductName());
-		assertThat(response.getProducts().get(3).getAdditivesN()).isEqualTo(4);
+		assertThat(response.getStatusCode().compareTo(HttpStatus.OK) == 1);
+		assertThat(productsReturn.getProducts().size()).isEqualTo(4);
+		assertThat(productsReturn.getProducts().get(0).getProductName()).isEqualTo(products.get(0).getProductName());
+		assertThat(productsReturn.getProducts().get(3).getAdditivesN()).isEqualTo(4);
 	}
-	
+
 	@Test
 	@DisplayName("Chesses Test with no result")
 	void getPolandNoChessesCase() throws Exception {
-		// given
-		PolandCheesesResponseDTO cheeses = new PolandCheesesResponseDTO(1, "products no found", null);
 
-		when(polandCheesesService.getPolandChesses()).thenReturn(cheeses);
+		// given
+		when(polandCheesesService.getPolandChesses()).thenReturn(null);
 
 		// when
-		PolandCheesesResponseDTO response = polandCheesesController.getPolandChesses();
-
+		ResponseEntity<PolandCheesesDTO> response = polandCheesesController.getPolandChesses();
 		// then
-		assertThat(response.getStatus()).isEqualTo(1);
-		assertThat(response.getProducts()).isEqualTo(null);
-		
+		assertThat(response.getStatusCode().compareTo(HttpStatus.NOT_FOUND) == 1);
 
 	}
-	
-	
-	@Test
-	@DisplayName("Chesses Test with Error")
-	void getPolandChessesErrorCase() throws Exception {
-		// given
-		when(polandCheesesService.getPolandChesses()).thenThrow(Exception.class);
 
-		// when
-		PolandCheesesResponseDTO response = polandCheesesController.getPolandChesses();
-
-		// then
-		assertThat(response.getStatus()).isEqualTo(-1);
-		assertThat(response.getProducts()).isEqualTo(null);
-	}
-	
-	
 	@Test
 	@DisplayName("ChessesNutriments Test with result")
 	void getChessesNutrimentsCase() throws Exception {
 		// given
-		CheeseNutrients cheeseNutrients = new CheeseNutrients("5902476000391","Twaróg chudy", null );
-		
-		CheeseNutrimentsResponseDTO nutriments = new CheeseNutrimentsResponseDTO(1, "product found", cheeseNutrients);
-		
-		when(cheeseNutrimentsService.getCheeseNutrimentsFacts("5902476000391")).thenReturn(nutriments);
+		CheeseNutrientsDTO cheeseNutrients = new CheeseNutrientsDTO("5902476000391", "Twaróg chudy", 0, null);
+		CheeseApiResponseDTO product = new CheeseApiResponseDTO(1, "product found", cheeseNutrients);
+
+		when(cheeseNutrimentsService.getCheeseNutrimentsFacts("5902476000391")).thenReturn(product);
 
 		// when
-		CheeseNutrimentsResponseDTO response = cheeseNutrimentsService.getCheeseNutrimentsFacts("5902476000391");
+		ResponseEntity<CheeseNutrientsDTO> response = polandCheesesController.getCheeseNutrimentsFacts("5902476000391");
+		CheeseNutrientsDTO productsReturn = response.getBody();
 
 		// then
-		assertThat(response.getStatus()).isEqualTo(1);
-		assertThat(response.getProduct().getProductName()).isEqualTo(cheeseNutrients.getProductName());
+		assertThat(response.getStatusCode().compareTo(HttpStatus.OK) == 1);
+		assertThat(productsReturn.getProductName()).isEqualTo(cheeseNutrients.getProductName());
 
 	}
-	
-	
+
 	@Test
 	@DisplayName("ChessesNutriments Test with no result")
 	void getChessesNoNutrimentsCase() throws Exception {
+
 		// given
-		CheeseNutrimentsResponseDTO nutriments = new CheeseNutrimentsResponseDTO(0, "product no found", null);
+		CheeseApiResponseDTO product = new CheeseApiResponseDTO(0, "product no found", null);
+
+		when(cheeseNutrimentsService.getCheeseNutrimentsFacts("5902476000391")).thenReturn(product);
+
+		// when
+		ResponseEntity<CheeseNutrientsDTO> response = polandCheesesController.getCheeseNutrimentsFacts("5902476000391");
 		
-		when(cheeseNutrimentsService.getCheeseNutrimentsFacts("123456789")).thenReturn(nutriments);
-
-		// when
-		CheeseNutrimentsResponseDTO response = cheeseNutrimentsService.getCheeseNutrimentsFacts("123456789");
-
 		// then
-		assertThat(response.getStatus()).isEqualTo(0);
-		assertThat(response.getProduct()).isEqualTo(null);
+		assertThat(response.getStatusCode().compareTo(HttpStatus.NOT_FOUND) == 1);
 
 	}
-	
-	@Test
-	@DisplayName("ChessesNutriments Test with Error")
-	void getChessesNutrimentsErrorCase() throws Exception {
-		// given
-		when(cheeseNutrimentsService.getCheeseNutrimentsFacts("123456789")).thenThrow(Exception.class);
-
-		// when
-		PolandCheesesResponseDTO response = polandCheesesController.getPolandChesses();
-
-		// then
-		assertThat(response.getStatus()).isEqualTo(-1);
-		assertThat(response.getProducts()).isEqualTo(null);
-	}
-	
-	
-	
-
 
 }

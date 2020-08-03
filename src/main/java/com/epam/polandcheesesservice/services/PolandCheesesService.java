@@ -1,9 +1,9 @@
 package com.epam.polandcheesesservice.services;
 
-import com.epam.polandcheesesservice.DTOs.PolandCheesesResponseDTO;
+import com.epam.polandcheesesservice.DTOs.PolandCheesesDTO;
 
 public interface PolandCheesesService {
 
-	public PolandCheesesResponseDTO getPolandChesses ()throws Exception;
+	PolandCheesesDTO getPolandChesses();
 
 }

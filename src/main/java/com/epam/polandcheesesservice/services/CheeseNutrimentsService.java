@@ -1,9 +1,9 @@
 package com.epam.polandcheesesservice.services;
 
-import com.epam.polandcheesesservice.DTOs.CheeseNutrimentsResponseDTO;
+import com.epam.polandcheesesservice.DTOs.CheeseApiResponseDTO;
 
 public interface CheeseNutrimentsService {
 
-	CheeseNutrimentsResponseDTO getCheeseNutrimentsFacts(String idProduct) throws Exception;
+	CheeseApiResponseDTO getCheeseNutrimentsFacts(String idProduct);
 
 }

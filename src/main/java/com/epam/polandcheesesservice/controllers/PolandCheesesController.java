@@ -1,12 +1,16 @@
 package com.epam.polandcheesesservice.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.epam.polandcheesesservice.DTOs.CheeseNutrimentsResponseDTO;
-import com.epam.polandcheesesservice.DTOs.PolandCheesesResponseDTO;
+import com.epam.polandcheesesservice.DTOs.CheeseApiResponseDTO;
+import com.epam.polandcheesesservice.DTOs.CheeseNutrientsDTO;
+import com.epam.polandcheesesservice.DTOs.PolandCheesesDTO;
 import com.epam.polandcheesesservice.services.CheeseNutrimentsService;
 import com.epam.polandcheesesservice.services.PolandCheesesService;
 
@@ -20,25 +24,30 @@ public class PolandCheesesController {
 	@Autowired
 	private CheeseNutrimentsService cheeseNutrimentsService;
 
-	@RequestMapping("/cheeses")
-	public PolandCheesesResponseDTO getPolandChesses() {
-		try {
-			PolandCheesesResponseDTO cheeses = polandCheesesService.getPolandChesses();
-			cheeses.setStatus(1);
-			cheeses.setStatusVerbose("product found");
-			return cheeses;
-		} catch (Exception e) {
-			return new PolandCheesesResponseDTO(-1, "Error procesing the query", null);
+	@GetMapping("/")
+	public ResponseEntity<PolandCheesesDTO> getPolandChesses() {
+
+		PolandCheesesDTO cheeses = polandCheesesService.getPolandChesses();
+
+		if (cheeses != null && cheeses.getProducts().size() > 0) {
+			return new ResponseEntity<PolandCheesesDTO>(cheeses, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<PolandCheesesDTO>(HttpStatus.NOT_FOUND);
 		}
+
 	}
 
-	@RequestMapping("/nutriments/{productId}")
-	public CheeseNutrimentsResponseDTO getCheeseNutrimentsFacts(@PathVariable("productId") String productId) {
-		try {
-			return cheeseNutrimentsService.getCheeseNutrimentsFacts(productId);
-		} catch (Exception e) {
-			return new CheeseNutrimentsResponseDTO(-1, "Error procesing the query", null);
-		}
-	}
+	@GetMapping("/{productId}")
+	public ResponseEntity<CheeseNutrientsDTO> getCheeseNutrimentsFacts(
+			@PathVariable("productId") String productId) {
 
+		CheeseApiResponseDTO nutriments = cheeseNutrimentsService.getCheeseNutrimentsFacts(productId);
+
+		if (nutriments != null && nutriments.getStatus() == 1) {
+			return new ResponseEntity<CheeseNutrientsDTO>(nutriments.getProduct(), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<CheeseNutrientsDTO>(HttpStatus.NOT_FOUND);
+		}
+
+	}
 }
